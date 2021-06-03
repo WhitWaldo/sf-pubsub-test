@@ -1,0 +1,23 @@
+﻿@page "/"
+
+<PubSubReceiver OnSampleEventReceived="@(OnSampleEventReceived)" OnSampleUnorderedEventReceived="@(OnUnorderedSampleEventReceived)"/>
+
+<h1>Sample Events</h1>
+<ul>
+	@foreach (var ev in SampleEvents)
+	{
+		<li style="list-style-type: none">
+			@($"{ev.Id} - {ev.Message}")
+		</li>
+	}
+</ul>
+
+<h1>Sample Unordered Events</h1>
+<ul>
+	@foreach (var ev in SampleUnorderedEvents)
+	{
+		<li style="list-style-type: none">
+			@($"{ev.Id} - {ev.Message}")
+		</li>
+	}
+</ul>
