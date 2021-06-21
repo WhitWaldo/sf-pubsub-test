@@ -11,8 +11,9 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.ServiceFabric.Services" Version="5.0.*" />
+    <PackageReference Include="Microsoft.ServiceFabric" Version="8.0.*" />
     <PackageReference Include="Microsoft.ServiceFabric.Diagnostics.Internal" Version="5.0.*" />
-    <PackageReference Include="SoCreate.ServiceFabric.PubSub" Version="13.0.0" />
+    <PackageReference Include="SoCreate.ServiceFabric.PubSub" Version="13.0.*" />
   </ItemGroup>
 
   <ItemGroup>
