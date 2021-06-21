@@ -5,16 +5,10 @@
     <Parameter Name="Broker_PartitionCount" DefaultValue="1" />
     <Parameter Name="Broker_TargetReplicaSetSize" DefaultValue="3" />
     <Parameter Name="Stateless1_InstanceCount" DefaultValue="-1" />
-    <Parameter Name="Stateful1_MinReplicaSetSize" DefaultValue="3" />
-    <Parameter Name="Stateful1_PartitionCount" DefaultValue="1" />
-    <Parameter Name="Stateful1_TargetReplicaSetSize" DefaultValue="3" />
     <Parameter Name="Blazor_ASPNETCORE_ENVIRONMENT" DefaultValue="" />
     <Parameter Name="Blazor_InstanceCount" DefaultValue="-1" />
     <Parameter Name="Api_ASPNETCORE_ENVIRONMENT" DefaultValue="" />
     <Parameter Name="Api_InstanceCount" DefaultValue="-1" />
-    <Parameter Name="SubscriberActorService_PartitionCount" DefaultValue="10" />
-    <Parameter Name="SubscriberActorService_MinReplicaSetSize" DefaultValue="3" />
-    <Parameter Name="SubscriberActorService_TargetReplicaSetSize" DefaultValue="3" />
   </Parameters>
   <!-- Import the ServiceManifest from the ServicePackage. The ServiceManifestName and ServiceManifestVersion 
        should match the Name and Version attributes of the ServiceManifest element defined in the 
@@ -26,13 +20,6 @@
   <ServiceManifestImport>
     <ServiceManifestRef ServiceManifestName="Stateless1Pkg" ServiceManifestVersion="1.0.0" />
     <ConfigOverrides />
-  </ServiceManifestImport>
-  <ServiceManifestImport>
-    <ServiceManifestRef ServiceManifestName="Stateful1Pkg" ServiceManifestVersion="1.0.0" />
-    <ConfigOverrides />
-  </ServiceManifestImport>
-  <ServiceManifestImport>
-    <ServiceManifestRef ServiceManifestName="ActorSubscriberPkg" ServiceManifestVersion="1.0.0" />
   </ServiceManifestImport>
   <ServiceManifestImport>
     <ServiceManifestRef ServiceManifestName="BlazorPkg" ServiceManifestVersion="1.0.0" />
@@ -64,11 +51,6 @@
         <SingletonPartition />
       </StatelessService>
     </Service>
-    <Service Name="Stateful1" ServicePackageActivationMode="ExclusiveProcess">
-      <StatefulService ServiceTypeName="Stateful1Type" TargetReplicaSetSize="[Stateful1_TargetReplicaSetSize]" MinReplicaSetSize="[Stateful1_MinReplicaSetSize]">
-        <UniformInt64Partition PartitionCount="[Stateful1_PartitionCount]" LowKey="-9223372036854775808" HighKey="9223372036854775807" />
-      </StatefulService>
-    </Service>
     <Service Name="Blazor" ServicePackageActivationMode="ExclusiveProcess">
       <StatelessService ServiceTypeName="BlazorType" InstanceCount="[Blazor_InstanceCount]">
         <SingletonPartition />
@@ -78,11 +60,6 @@
       <StatelessService ServiceTypeName="ApiType" InstanceCount="[Api_InstanceCount]">
         <SingletonPartition />
       </StatelessService>
-    </Service>
-    <Service Name="SubscriberActorService" GeneratedIdRef="ffad71fc-02fa-4af3-ae0b-80917ed3a699|Persisted">
-      <StatefulService ServiceTypeName="ActorSubscriberActorServiceType" TargetReplicaSetSize="[SubscriberActorService_TargetReplicaSetSize]" MinReplicaSetSize="[SubscriberActorService_MinReplicaSetSize]">
-        <UniformInt64Partition PartitionCount="[SubscriberActorService_PartitionCount]" LowKey="-9223372036854775808" HighKey="9223372036854775807" />
-      </StatefulService>
     </Service>
   </DefaultServices>
 </ApplicationManifest>

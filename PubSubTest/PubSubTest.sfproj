@@ -32,7 +32,6 @@
     <Content Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\ActorSubscriber\ActorSubscriber.csproj" />
     <ProjectReference Include="..\Api\Api.csproj">
       <ServiceLaunchUrl>http://{MachineName}:{ServicePort}/</ServiceLaunchUrl>
     </ProjectReference>
@@ -40,7 +39,6 @@
       <ServiceLaunchUrl>http://{MachineName}:{ServicePort}/</ServiceLaunchUrl>
     </ProjectReference>
     <ProjectReference Include="..\Broker\Broker.csproj" />
-    <ProjectReference Include="..\Stateful1\Stateful1.csproj" />
     <ProjectReference Include="..\Stateless1\Stateless1.csproj" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.Common.targets" />

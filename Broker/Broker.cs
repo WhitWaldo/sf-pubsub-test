@@ -12,7 +12,7 @@ namespace Broker
         public Broker(StatefulServiceContext context)
             : base(context)
         {
-            ServiceEventSourceMessageCallback = message => ServiceEventSource.Current.ServiceMessage(context, message);
+            //ServiceEventSourceMessageCallback = message => ServiceEventSource.Current.ServiceMessage(context, message);
             Period = TimeSpan.FromMilliseconds(200);
         }
     }

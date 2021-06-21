@@ -1,63 +1,46 @@
 using System.Collections.Generic;
 using System.Fabric;
 using System.IO;
+using System.Threading.Tasks;
+using Common;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.ServiceFabric.Services.Communication.AspNetCore;
 using Microsoft.ServiceFabric.Services.Communication.Runtime;
-using Microsoft.ServiceFabric.Services.Runtime;
+using Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime;
 using SoCreate.ServiceFabric.PubSub;
+using SoCreate.ServiceFabric.PubSub.Subscriber;
 
 namespace Blazor
 {
     /// <summary>
     /// The FabricRuntime creates an instance of this class for each service type instance. 
     /// </summary>
-    internal sealed class BlazorBase : StatelessService
+    internal sealed class BlazorBase : SubscriberStatelessServiceBase
     {
-        private string _listenerName { get; set; } = "SubscriberStatelessServiceRemotingListener";
+        private readonly MessageHost _host = new();
 
-        public BlazorBase(StatelessServiceContext serviceContext) : base(serviceContext)
+        public BlazorBase(StatelessServiceContext serviceContext) : base(serviceContext, null)
         {
+            Logger = message => ServiceEventSource.Current.ServiceMessage(serviceContext, message);
         }
 
-        // private readonly IBrokerClient _brokerClient;
-        //
-        // private Action<string> Logger { get; set; }
-        //
-        // public BlazorBase(StatelessServiceContext context)
-        //     : base(context)
-        // {
-        //     _brokerClient = new BrokerClient();
-        //
-        //     //Set the logger
-        //     Logger = msg => ServiceEventSource.Current.ServiceMessage(context, msg);
-        // }
-        //
-        // protected override async Task OnOpenAsync(CancellationToken cancellationToken)
-        // {
-        //     for (var attempt = 0;; attempt++)
-        //     {
-        //         try
-        //         {
-        //             await Subscribe();
-        //             break;
-        //         }
-        //         catch (BrokerNotFoundException)
-        //         {
-        //             if (attempt > 10)
-        //                 throw;
-        //
-        //             await Task.Delay(TimeSpan.FromSeconds(10), cancellationToken);
-        //         }
-        //     }
-        // }
-        //
-        // private async Task Subscribe()
-        // {
-        //
-        // }
-        
+        [Subscribe]
+        private Task HandleSampleUnorderedEvent(SampleEvent ev)
+        {
+            ServiceEventSource.Current.ServiceMessage(Context, $"Processing {ev.GetType()}: {ev.Message} on {nameof(BlazorBase)}");
+            _host.AddMessage(ev.Id, ev.Message);
+            return Task.CompletedTask;
+        }
+
+        [Subscribe(QueueType.Unordered)]
+        private Task HandleSampleUnorderedEvent(SampleUnorderedEvent ev)
+        {
+            ServiceEventSource.Current.ServiceMessage(Context, $"Processing {ev.GetType()}: {ev.Message} on {nameof(BlazorBase)}");
+            _host.AddMessage(ev.Id, ev.Message);
+            return Task.CompletedTask;
+        }
+
         /// <summary>
         /// Optional override to create listeners (like tcp, http) for this service instance.
         /// </summary>
@@ -76,13 +59,16 @@ namespace Blazor
                             .ConfigureServices(
                                 services => services
                                     .AddSingleton<StatelessServiceContext>(serviceContext)
+                                    .AddSingleton<MessageHost>(_host)
                                     .AddSingleton<IBrokerClient>(_ => new BrokerClient()))
                             .UseContentRoot(Directory.GetCurrentDirectory())
                             .UseStartup<Startup>()
                             .UseServiceFabricIntegration(listener, ServiceFabricIntegrationOptions.None)
                             .UseUrls(url)
                             .Build();
-                    }))
+                    })),
+                new ServiceInstanceListener(context => new FabricTransportServiceRemotingListener(context, this),
+                    this.ListenerName)
             };
         }
     }

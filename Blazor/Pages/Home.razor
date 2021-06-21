@@ -1,23 +1,44 @@
 ﻿@page "/"
-
-<PubSubReceiver OnSampleEventReceived="@(OnSampleEventReceived)" OnSampleUnorderedEventReceived="@(OnUnorderedSampleEventReceived)"/>
+@inject MessageHost _host
+@implements IDisposable
 
 <h1>Sample Events</h1>
 <ul>
-	@foreach (var ev in SampleEvents)
+	@foreach (var key in Messages.Keys)
 	{
 		<li style="list-style-type: none">
-			@($"{ev.Id} - {ev.Message}")
+			@($"{key} - {Messages[key]}");
 		</li>
 	}
 </ul>
 
-<h1>Sample Unordered Events</h1>
-<ul>
-	@foreach (var ev in SampleUnorderedEvents)
+@code
+{
+	public Dictionary<Guid,string> Messages { get; set; } = new();
+
+	/// <summary>
+	/// Method invoked when the component is ready to start, having received its
+	/// initial parameters from its parent in the render tree.
+	/// Override this method if you will perform an asynchronous operation and
+	/// want the component to refresh when that operation is completed.
+	/// </summary>
+	/// <returns>A <see cref="T:System.Threading.Tasks.Task" /> representing any asynchronous operation.</returns>
+	protected override void OnInitialized()
 	{
-		<li style="list-style-type: none">
-			@($"{ev.Id} - {ev.Message}")
-		</li>
+		_host.MessagesUpdated += HostOnMessagesUpdated;
 	}
-</ul>
+
+	private void HostOnMessagesUpdated(object? sender, EventArgs e)
+	{
+		InvokeAsync(() =>
+		{
+			Messages = _host.Messages;
+			StateHasChanged();
+		});
+	}
+	
+	public void Dispose()
+	{
+		_host.MessagesUpdated -= HostOnMessagesUpdated;
+	}
+}
